@@ -1,4 +1,4 @@
-# Corrigan2024
+Corrigan, DeBerardine et al. 2024
 
 The main analyses are done in `liger_integrations.R` and `reciprocal_hotspot_projections.R`. 
 
