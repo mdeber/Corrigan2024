@@ -1,0 +1,12 @@
+# note that marm_census/data/striatum.GAD.rds & 
+# marm_str_gad_cell_meta.csv are being included in this repo
+**/.DS_Store
+abc/data/*
+dev_ferret/data/*
+dev_macaque/data/*
+dev_mouse/data/*
+dev_pig/data/*
+liger_integrations/*
+marm_census/data/marm_str_gad_drop2_dropGlut_0p8
+reciprocal_hotspot_projections/*
+siletti/data/*
