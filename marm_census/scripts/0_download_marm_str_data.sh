@@ -1,6 +1,8 @@
 MARM_SCRIPT_DIR=$(dirname $0);
 MARM_DIR=${MARM_SCRIPT_DIR}/..;
 
+[ -e cd ${MARM_DIR}/data ] || mkdir cd ${MARM_DIR}/data;
+
 cd ${MARM_DIR}/data;
 
 # 
