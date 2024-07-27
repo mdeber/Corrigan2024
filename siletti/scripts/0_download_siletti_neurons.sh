@@ -1,7 +1,7 @@
 SILETTI_SCRIPT_DIR=$(dirname $0);
 SILETTI_DIR=${SILETTI_SCRIPT_DIR}/..;
 
-[ -e ${SILETTI_DIR}/data ] || mkdir cd ${SILETTI_DIR}/data;
+[ -e ${SILETTI_DIR}/data ] || mkdir ${SILETTI_DIR}/data;
 
 cd ${SILETTI_DIR}/data;
 wget https://storage.googleapis.com/linnarsson-lab-human/Neurons.h5ad;

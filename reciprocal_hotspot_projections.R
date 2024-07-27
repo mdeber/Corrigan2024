@@ -130,9 +130,9 @@ pdirs_data <- list(
     marm = file.path(pdir, "marm_census/data/marm_str_gad_drop2_dropGlut_0p8"),
     abc = file.path(pdir, "abc/data/abc_seurat_cl08_str_dropSubc057_0p8"),
     siletti = file.path(pdir, "siletti/data/siletti_neur_roi_sclust_dropAllMeis2_0p8"),
-    emily_ferret = file.path(pdir, "dev_ferret/data"),
-    emily_mouse = file.path(pdir, "dev_mouse/data"),
-    emily_pig = file.path(pdir, "dev_pig/data"),
+    dev_ferret = file.path(pdir, "dev_ferret/data"),
+    dev_mouse = file.path(pdir, "dev_mouse/data"),
+    dev_pig = file.path(pdir, "dev_pig/data"),
     dev_macaque = file.path(pdir, "dev_macaque/data")
 )
 stopifnot(all(sapply(pdirs_data, dir.exists)))
@@ -141,9 +141,9 @@ paths_rds <- list(
     marm = file.path(pdirs_data$marm, "marm_str_gad_drop2_dropGlut_0p8.rds"),
     abc = file.path(pdirs_data$abc, "abc_seurat_cl08_str_dropSubc057_0p8.rds"),
     siletti = file.path(pdirs_data$siletti, "siletti_neur_roi_sclust_dropAllMeis2_0p8.rds"),
-    emily_ferret = file.path(pdirs_data$emily_ferret, "ferret_processed.rds"),
-    emily_mouse = file.path(pdirs_data$emily_mouse, "mouse_processed.rds"),
-    emily_pig = file.path(pdirs_data$emily_pig, "pig_processed.rds"),
+    dev_ferret = file.path(pdirs_data$dev_ferret, "ferret_processed.rds"),
+    dev_mouse = file.path(pdirs_data$dev_mouse, "mouse_processed.rds"),
+    dev_pig = file.path(pdirs_data$dev_pig, "pig_processed.rds"),
     dev_macaque = file.path(pdirs_data$dev_macaque, "MacaqueDevInhibitoryNeurons.rds")
 )
 stopifnot(all(sapply(paths_rds, file.exists)))
@@ -189,21 +189,21 @@ seur_list$dev_macaque <- NormalizeData(seur_list$dev_macaque)
 # 3 layers present: counts, data, scale.data
 # 2 dimensional reductions calculated: pca, umap
 # 
-# $emily_ferret
+# $dev_ferret
 # An object of class Seurat 
 # 26253 features across 10540 samples within 1 assay 
 # Active assay: RNA (26253 features, 0 variable features)
 # 2 layers present: counts, data
 # 3 dimensional reductions calculated: pca_harmony, pca, umap
 # 
-# $emily_mouse
+# $dev_mouse
 # An object of class Seurat 
 # 28153 features across 71023 samples within 1 assay 
 # Active assay: RNA (28153 features, 0 variable features)
 # 2 layers present: counts, data
 # 3 dimensional reductions calculated: pca_harmony, pca, umap
 # 
-# $emily_pig
+# $dev_pig
 # An object of class Seurat 
 # 30284 features across 8140 samples within 1 assay 
 # Active assay: RNA (30284 features, 0 variable features)
@@ -227,11 +227,20 @@ hs_module_tables <- lapply(hs_module_csv_paths, read.csv)
 hs_module_lists <- lapply(hs_module_tables, hsModuleTableToList)
 
 # > lengths(hs_module_lists) # number of modules per dataset
-# marm          abc      siletti emily_ferret  emily_mouse    emily_pig  dev_macaque 
-# 111          128          155           87           98          106          142 
+# marm      abc      siletti    dev_ferret    dev_mouse    dev_pig  dev_macaque 
+#  111      128          155            87           98        106          142 
 
 
 # Marker genes for each species -------------------------------------------
+
+#
+# note that all of these lists (`seur_list`, `hs_module_lists`, `markers`) are
+# fully parallel with one another and match up (and which is why there are two
+# elements in `markers` with all the mouse markers, because there are two
+# mouse datasets).
+# 
+# the outputs generated in sections below will also be parallel
+# 
 
 markers <- list(
     marm = NULL,
@@ -328,34 +337,26 @@ stopifnot(all(markers$human %in% rownames(seur_list$siletti)))
 markers$marm <- markers$human[!markers$human %in% c("MIA", "AVP", "CENPF")]
 stopifnot(all(markers$marm %in% rownames(seur_list$marm)))
 
-# mouse only needs to fix Tac2; Emily's data also has all the genes
+# mouse only needs to fix Tac2; dev_mouse data also has all the genes
 markers$mouse <- toCapCase(markers$human)
 markers$mouse <- sub("Tac3", "Tac2", markers$mouse)
 stopifnot(all(markers$mouse %in% rownames(seur_list$abc)))
-stopifnot(all(markers$mouse %in% rownames(seur_list$emily_mouse)))
+stopifnot(all(markers$mouse %in% rownames(seur_list$dev_mouse)))
 markers$mouse_again <- markers$mouse
 
 # genes missing from the ferret data
 markers$ferret <- markers$human[
     !markers$human %in% c("PVALB", "TH", "MIA", "NRTN")
 ]
-stopifnot(all(markers$ferret %in% rownames(seur_list$emily_ferret)))
+stopifnot(all(markers$ferret %in% rownames(seur_list$dev_ferret)))
 
 # genes missing from the pig data
 markers$pig <- markers$human[!markers$human == "CHRNB4"]
-stopifnot(all(markers$pig %in% rownames(seur_list$emily_pig)))
+stopifnot(all(markers$pig %in% rownames(seur_list$dev_pig)))
 
 # genes missing from macaque data
 markers$macaque <- markers$human[!markers$human == "MIA"]
 
-#
-# note that all of these lists (`seur_list`, `hs_module_lists`, `markers`) are
-# fully parallel with one another and match up (and which is why there are two
-# elements in `markers` with all the mouse markers, because there are two
-# mouse datasets).
-# 
-# the outputs generated below will also be parallel
-# 
 
 # Calculate all module scores ---------------------------------------------
 
@@ -439,7 +440,7 @@ checkModulesAcrossSpecies <- function(
     # gene symbols to match up with species_list 
     # (this should work regardless of whether mouse or non-mouse gene names
     # are used)
-    is_species_mouse <- species_list %in% c("abc", "emily_mouse")
+    is_species_mouse <- species_list %in% c("abc", "dev_mouse")
     mk_gene_symbols <- ifelse(
         is_species_mouse,
         toCapCase(gene), 
@@ -455,9 +456,9 @@ checkModulesAcrossSpecies <- function(
         siletti = "Human (Siletti 2023)", 
         marm = "Marmoset (Krienen 2023)", 
         abc = "Mouse (Yao 2023)",
-        emily_ferret = "Developing ferret",
-        emily_mouse = "Developing mouse",
-        emily_pig = "Developing pig",
+        dev_ferret = "Developing ferret",
+        dev_mouse = "Developing mouse",
+        dev_pig = "Developing pig",
         dev_macaque = "Developing macaque"
     )
     
@@ -572,7 +573,7 @@ if (!dir.exists(reciprocal_module_dir))
 
 dev_idx <- 4:7
 # > names(seur_list)[dev_idx]
-# [1] "emily_ferret" "emily_mouse"  "emily_pig"    "dev_macaque" 
+# [1] "dev_ferret"  "dev_mouse"  "dev_pig"   "dev_macaque" 
 
 mclapply(names(seur_list)[dev_idx], function(ref) {
     save_dir <- file.path(reciprocal_module_dir, paste0("modules_from_", ref))
