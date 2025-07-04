@@ -1,0 +1,3 @@
+This publication used an early pre-release of the marmoset HMBA data, which is not limited to the Basal Ganglia subset but which contain cells from all over the subcortex. The exact dataset we began with may no longer be publically available, so included here is the set of cell barcodes found in our starting dataset (in subfolder `data/starting_cells.csv`) so that this dataset can be recreated based on any public release.
+
+The cell barcodes in `data/cells_annotated.csv` are the cells we recovered based on cross-species integration, which are apparent striatal inhibitory interneurons (see scVI integration script).
